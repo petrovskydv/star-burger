@@ -4,8 +4,7 @@ from pprint import pprint
 from django.http import JsonResponse
 from django.templatetags.static import static
 
-
-from .models import Product
+from .models import Product, Order, OrderItem
 
 
 def banners_list_api(request):
@@ -62,8 +61,20 @@ def product_list_api(request):
 
 def register_order(request):
     try:
-        data = json.loads(request.body.decode())
-        pprint(data)
+        details_order = json.loads(request.body.decode())
+        order = Order.objects.create(
+            firstname=details_order['firstname'],
+            lastname=details_order['lastname'],
+            address=details_order['address'],
+            phone_number=details_order['phonenumber'],
+        )
+        for product in details_order['products']:
+            order_item = OrderItem.objects.create(
+                product=Product.objects.get(pk=product['product']),
+                order=order,
+                quantity=product['quantity']
+            )
+
         return JsonResponse({})
     except ValueError:
         return JsonResponse({
