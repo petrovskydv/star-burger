@@ -1,3 +1,6 @@
+import json
+from pprint import pprint
+
 from django.http import JsonResponse
 from django.templatetags.static import static
 
@@ -58,5 +61,11 @@ def product_list_api(request):
 
 
 def register_order(request):
-    # TODO это лишь заглушка
-    return JsonResponse({})
+    try:
+        data = json.loads(request.body.decode())
+        pprint(data)
+        return JsonResponse({})
+    except ValueError:
+        return JsonResponse({
+            'error': 'bla bla bla',
+        })
