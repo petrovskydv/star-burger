@@ -1,14 +1,11 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.exceptions import ValidationError
-from rest_framework.fields import IntegerField
 from rest_framework.response import Response
-from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Order, OrderItem
+from .serializers import OrderSerializer
 
 
 def banners_list_api(request):
@@ -61,37 +58,6 @@ def product_list_api(request):
         'ensure_ascii': False,
         'indent': 4,
     })
-
-
-class OrderItemSerializer(ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = (
-            'quantity',
-            'product'
-        )
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, write_only=True)
-    phonenumber = PhoneNumberField(source='phone_number')
-    id = IntegerField(read_only=True)
-
-    class Meta:
-        model = Order
-        fields = (
-            'id',
-            'firstname',
-            'lastname',
-            'phonenumber',
-            'address',
-            'products',
-        )
-
-    def validate_products(self, value):
-        if not value:
-            raise ValidationError('Список продуктов пуст!')
-        return value
 
 
 @api_view(['POST'])
