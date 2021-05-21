@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Sum, F
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -96,9 +97,14 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.all()
+    orders = Order.objects.fetch_with_order_cost().all()
+    for order in orders:
+        order.cost = order.order_items.aggregate(Sum('product_cost'))['product_cost__sum']
+        print(order.cost)
+        print(order.id)
+
     return render(
         request,
         template_name='order_items.html',
-        context={'order_items':OrderSerializer(orders, many=True).data}
+        context={'order_items':orders}
     )
