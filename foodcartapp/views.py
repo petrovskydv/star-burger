@@ -4,6 +4,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 
@@ -72,17 +73,19 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True)
+    products = OrderItemSerializer(many=True, write_only=True)
     phonenumber = PhoneNumberField(source='phone_number')
+    id = IntegerField(read_only=True)
 
     class Meta:
         model = Order
         fields = (
+            'id',
             'firstname',
             'lastname',
+            'phonenumber',
             'address',
             'products',
-            'phonenumber',
         )
 
     def validate_products(self, value):
@@ -107,4 +110,4 @@ def register_order(request):
     order_items = [OrderItem(order=order, **fields) for fields in order_items_fields]
     OrderItem.objects.bulk_create(order_items)
 
-    return Response({}, status=status.HTTP_200_OK)
+    return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
