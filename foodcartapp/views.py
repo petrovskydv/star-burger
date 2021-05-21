@@ -1,9 +1,11 @@
-from django.db import IntegrityError
 from django.http import JsonResponse
 from django.templatetags.static import static
+from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
 from .models import Product, Order, OrderItem
 
@@ -60,75 +62,49 @@ def product_list_api(request):
     })
 
 
+class OrderItemSerializer(ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = (
+            'quantity',
+            'product'
+        )
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderItemSerializer(many=True)
+    phonenumber = PhoneNumberField(source='phone_number')
+
+    class Meta:
+        model = Order
+        fields = (
+            'firstname',
+            'lastname',
+            'address',
+            'products',
+            'phonenumber',
+        )
+
+    def validate_products(self, value):
+        if not value:
+            raise ValidationError('Список продуктов пуст!')
+        return value
+
+
 @api_view(['POST'])
 def register_order(request):
-    try:
-        details_order = request.data
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
 
-        if isinstance(details_order['products'], list):
-            if len(details_order['products']) == 0:
-                content = {'error': 'список продуктов пуст'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            content = {'error': 'вместо списка продуктов получен другой тип данных'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    order = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        address=serializer.validated_data['address'],
+        phone_number=serializer.validated_data['phone_number'],
+    )
 
-        if not details_order['products']:
-            content = {'error': 'вместо списка продуктов передан NULL'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    order_items_fields = serializer.validated_data['products']
+    order_items = [OrderItem(order=order, **fields) for fields in order_items_fields]
+    OrderItem.objects.bulk_create(order_items)
 
-        if not isinstance(details_order['firstname'], str):
-            content = {'error': 'поле firstname не определено или не является строкой'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        elif not details_order['firstname']:
-            content = {'error': 'поле firstname не определено'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        if not isinstance(details_order['lastname'], str):
-            content = {'error': 'поле lastname не определено или не является строкой'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        elif not details_order['lastname']:
-            content = {'error': 'поле lastname не определено'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        if not isinstance(details_order['address'], str):
-            content = {'error': 'поле address не определено или не является строкой'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        elif not details_order['address']:
-            content = {'error': 'поле address не определено'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        if not isinstance(details_order['phonenumber'], str):
-            content = {'error': 'поле phonenumber не определено или не является строкой'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        elif not details_order['phonenumber']:
-            content = {'error': 'поле phonenumber не определено'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-        order = Order.objects.create(
-            firstname=details_order['firstname'],
-            lastname=details_order['lastname'],
-            address=details_order['address'],
-            phone_number=details_order['phonenumber'],
-        )
-        for product in details_order['products']:
-            order_item = OrderItem.objects.create(
-                product=Product.objects.get(pk=product['product']),
-                order=order,
-                quantity=product['quantity']
-            )
-
-        return JsonResponse({})
-    except ValueError:
-        return JsonResponse({
-            'error': 'error',
-        })
-    except KeyError as e:
-        content = {'error': repr(e)}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
-    except Product.DoesNotExist as e:
-        content = {'error': 'продукт не найден'}
-        return Response(content, status=status.HTTP_404_NOT_FOUND)
-    except IntegrityError as e:
-        content = {'error': repr(e)}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    return Response({}, status=status.HTTP_200_OK)
