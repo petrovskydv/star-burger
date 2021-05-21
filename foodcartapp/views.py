@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework import status
@@ -76,6 +77,34 @@ def register_order(request):
             content = {'error': 'вместо списка продуктов передан NULL'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+        if not isinstance(details_order['firstname'], str):
+            content = {'error': 'поле firstname не определено или не является строкой'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        elif not details_order['firstname']:
+            content = {'error': 'поле firstname не определено'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(details_order['lastname'], str):
+            content = {'error': 'поле lastname не определено или не является строкой'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        elif not details_order['lastname']:
+            content = {'error': 'поле lastname не определено'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(details_order['address'], str):
+            content = {'error': 'поле address не определено или не является строкой'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        elif not details_order['address']:
+            content = {'error': 'поле address не определено'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if not isinstance(details_order['phonenumber'], str):
+            content = {'error': 'поле phonenumber не определено или не является строкой'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        elif not details_order['phonenumber']:
+            content = {'error': 'поле phonenumber не определено'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
         order = Order.objects.create(
             firstname=details_order['firstname'],
             lastname=details_order['lastname'],
@@ -100,3 +129,6 @@ def register_order(request):
     except Product.DoesNotExist as e:
         content = {'error': 'продукт не найден'}
         return Response(content, status=status.HTTP_404_NOT_FOUND)
+    except IntegrityError as e:
+        content = {'error': repr(e)}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
