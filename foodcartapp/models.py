@@ -127,7 +127,7 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def fetch_with_order_cost(self):
-        return self.annotate(product_cost=Sum(F('order_items__quantity') * F('order_items__product__price')))
+        return self.annotate(product_cost=Sum(F('order_items__quantity') * F('order_items__price')))
 
 
 class Order(models.Model):
@@ -174,6 +174,13 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(
         'количество',
         validators=[MinValueValidator(1), MaxValueValidator(100)]
+    )
+    price = models.DecimalField(
+        'цена',
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)]
     )
 
     class Meta:
