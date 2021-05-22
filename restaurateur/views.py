@@ -98,10 +98,6 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.fetch_with_order_cost().all()
-    for order in orders:
-        order.cost = order.order_items.aggregate(Sum('product_cost'))['product_cost__sum']
-        print(order.cost)
-        print(order.id)
 
     return render(
         request,
