@@ -158,6 +158,12 @@ class Order(models.Model):
         default='not_processed',
     )
 
+    comment = models.TextField(
+        'комментарий',
+        max_length=200,
+        blank=True,
+    )
+
     objects = OrderQuerySet.as_manager()
 
     class Meta:
