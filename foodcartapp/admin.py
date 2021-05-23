@@ -1,8 +1,10 @@
 from django.contrib import admin
-from django.shortcuts import reverse
+from django.shortcuts import reverse, redirect
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 
+from star_burger.settings import ALLOWED_HOSTS
 from .models import Order
 from .models import OrderItem
 from .models import Product
@@ -125,3 +127,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline
     ]
+
+    def response_change(self, request, obj):
+        res = super(OrderAdmin, self).response_change(request, obj)
+        if "next" in request.GET:
+            redirect_url = request.GET['next']
+            if url_has_allowed_host_and_scheme(redirect_url, ALLOWED_HOSTS):
+                return redirect(redirect_url)
+            return res
+        else:
+            return res
