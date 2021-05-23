@@ -40,6 +40,7 @@ class RestaurantAdmin(admin.ModelAdmin):
     inlines = [
         RestaurantMenuItemInline
     ]
+    ordering = ['name']
 
 
 @admin.register(Product)
@@ -127,6 +128,25 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline
     ]
+    raw_id_fields = ('restaurant',)
+    autocomplete_fields = ['restaurant']
+
+    fieldsets = (
+        ('Общее', {
+            'fields': [
+                ('status', 'payment'),
+                ('registrated', 'called', 'delivered'),
+                'restaurant',
+                'comment',
+            ]
+        }),
+        ('Клиент', {
+            'fields': [
+                ('firstname', 'lastname'),
+                ('address', 'phone_number',)
+            ],
+        }),
+    )
 
     def response_change(self, request, obj):
         res = super(OrderAdmin, self).response_change(request, obj)
