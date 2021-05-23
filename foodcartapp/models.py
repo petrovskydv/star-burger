@@ -136,7 +136,13 @@ class Order(models.Model):
         ('processed', 'Обработанный'),
         ('not_processed', 'Необработанный'),
     ]
+    pay_choices = [
+        ('cash', 'Наличными'),
+        ('on_website', 'Оплата на сайте'),
+    ]
+
     status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed')
+    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='cash')
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
     address = models.CharField('Адрес', max_length=50)
