@@ -148,6 +148,16 @@ class Order(models.Model):
         max_length=50
     )
 
+    order_choices = [
+        ('processed', 'Обработанный'),
+        ('not_processed', 'Необработанный'),
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=order_choices,
+        default='not_processed',
+    )
+
     objects = OrderQuerySet.as_manager()
 
     class Meta:
