@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Sum, F, Prefetch
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -131,38 +132,19 @@ class OrderQuerySet(models.QuerySet):
 
 
 class Order(models.Model):
-    firstname = models.CharField(
-        'Имя',
-        max_length=50
-    )
-    lastname = models.CharField(
-        'Фамилия',
-        max_length=50
-    )
-    address = models.CharField(
-        'Адрес',
-        max_length=50
-    )
-    phone_number = PhoneNumberField(
-        'Мобильный номер',
-        max_length=50
-    )
-
     order_choices = [
         ('processed', 'Обработанный'),
         ('not_processed', 'Необработанный'),
     ]
-    status = models.CharField(
-        max_length=20,
-        choices=order_choices,
-        default='not_processed',
-    )
-
-    comment = models.TextField(
-        'комментарий',
-        max_length=200,
-        blank=True,
-    )
+    status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed')
+    firstname = models.CharField('Имя', max_length=50)
+    lastname = models.CharField('Фамилия', max_length=50)
+    address = models.CharField('Адрес', max_length=50)
+    phone_number = PhoneNumberField('Мобильный номер', max_length=50)
+    comment = models.TextField('комментарий', max_length=200, blank=True)
+    registrated = models.DateTimeField('зарегистрирован', default=timezone.now)
+    called = models.DateTimeField('дата звонка', blank=True, null=True)
+    delivered = models.DateTimeField('доставлен', blank=True, null=True)
 
     objects = OrderQuerySet.as_manager()
 
