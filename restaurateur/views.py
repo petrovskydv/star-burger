@@ -5,8 +5,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
+from geopy import distance
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.utils import fetch_coordinates
+from star_burger.settings import YANDEX_GEOCODER_TOKEN
 
 
 class Login(forms.Form):
@@ -105,7 +108,15 @@ def view_orders(request):
         order_items_restaurants = [menu_items[order_item['product']] for order_item in order_items]
         order_restaurants = set.intersection(
             *[set(order_item_restaurants) for order_item_restaurants in order_items_restaurants])
-        order.order_restaurants = order_restaurants
+
+        order_coordinates = fetch_coordinates(YANDEX_GEOCODER_TOKEN, order.address)
+        order_restaurants_coordinates = []
+        for order_restaurant in order_restaurants:
+            restaurant_coordinates = fetch_coordinates(YANDEX_GEOCODER_TOKEN, order_restaurant.address)
+            restaurant_distance = distance.distance(order_coordinates, restaurant_coordinates).km
+            order_restaurants_coordinates.append([order_restaurant, round(restaurant_distance, 3)])
+
+        order.order_restaurants = sorted(order_restaurants_coordinates, key=lambda restaurant: restaurant[1])
 
     return render(
         request,

@@ -22,7 +22,6 @@
       <th>Адрес доставки</th>
       <th>Комментарий</th>
       <th>Подходящие рестораны</th>
-      <th>Ресторан</th>
       <th>Ссылка на редактирование</th>
     </tr>
 
@@ -39,12 +38,13 @@
         <td>
           <details>
             <summary>Развернуть</summary>
-            {% for order_restaurant in item.order_restaurants %}
-              <p>{{ order_restaurant }}<p/>
-            {% endfor %}
+              <ul>
+                {% for order_restaurant, distance in item.order_restaurants %}
+                  <li>{{ order_restaurant }} - {{ distance }}</li>
+                {% endfor %}
+              </ul>
           </details>
         </td>
-        <td>{{ item.restaurant }}</td>
         <td>
           <a href='{% url "admin:foodcartapp_order_change" object_id=item.id %}?next={{ request.get_full_path|urlencode }}'>Редактировать</a>
         </td>
