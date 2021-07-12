@@ -144,16 +144,16 @@ class Order(models.Model):
         ('on_website', 'Оплата на сайте'),
     ]
 
-    status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed')
-    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='cash')
+    status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed', db_index=True)
+    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='cash', db_index=True)
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
     address = models.CharField('Адрес', max_length=50)
-    phone_number = PhoneNumberField('Мобильный номер', max_length=50)
+    phone_number = PhoneNumberField('Мобильный номер', max_length=50, db_index=True)
     comment = models.TextField('комментарий', max_length=200, blank=True)
-    registrated = models.DateTimeField('зарегистрирован', default=timezone.now)
-    called = models.DateTimeField('дата звонка', blank=True, null=True)
-    delivered = models.DateTimeField('доставлен', blank=True, null=True)
+    registrated = models.DateTimeField('зарегистрирован', default=timezone.now, db_index=True)
+    called = models.DateTimeField('дата звонка', blank=True, null=True, db_index=True)
+    delivered = models.DateTimeField('доставлен', blank=True, null=True, db_index=True)
     restaurant = models.ForeignKey(
         Restaurant,
         related_name='orders',
