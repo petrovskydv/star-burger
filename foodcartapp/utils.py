@@ -1,3 +1,5 @@
+from contextlib import suppress
+
 import requests
 from requests import HTTPError
 
@@ -10,7 +12,7 @@ def fetch_coordinates(place):
         address=place
     )
     if created:
-        try:
+        with suppress(HTTPError):
             base_url = "https://geocode-maps.yandex.ru/1.x"
             params = {"geocode": place, "apikey": YANDEX_GEOCODER_TOKEN, "format": "json"}
             response = requests.get(base_url, params=params)
@@ -21,6 +23,5 @@ def fetch_coordinates(place):
             most_relevant = found_places[0]
             location.longitude, location.latitude = most_relevant['GeoObject']['Point']['pos'].split(" ")
             location.save()
-        except HTTPError:
-            pass
+
     return location.longitude, location.latitude
