@@ -140,12 +140,13 @@ class Order(models.Model):
         ('not_processed', 'Необработанный'),
     ]
     pay_choices = [
+        ('not_defined', 'Не определен'),
         ('cash', 'Наличными'),
         ('on_website', 'Оплата на сайте'),
     ]
 
     status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed', db_index=True)
-    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='cash', db_index=True)
+    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='not_defined', db_index=True)
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
     address = models.CharField('Адрес', max_length=50)
