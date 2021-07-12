@@ -18,7 +18,7 @@ def fetch_coordinates(place):
             response = requests.get(base_url, params=params)
             response.raise_for_status()
             found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-            if len(found_places) == 0:
+            if not found_places:
                 return
             most_relevant = found_places[0]
             location.longitude, location.latitude = most_relevant['GeoObject']['Point']['pos'].split(" ")
