@@ -174,8 +174,8 @@ class Order(models.Model):
         return f'{self.firstname} {self.lastname} {self.address}'
 
     def fetch_restaurants_distance(self, menu_items):
-        order_items = self.order_items.values('product')
-        order_items_restaurants = [menu_items[order_item['product']] for order_item in order_items]
+        order_items_id = self.order_items.values_list('product', flat=True)
+        order_items_restaurants = [menu_items[order_item_id] for order_item_id in order_items_id]
         order_restaurants = set.intersection(
             *[set(order_item_restaurants) for order_item_restaurants in order_items_restaurants])
 
