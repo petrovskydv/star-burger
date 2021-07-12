@@ -96,12 +96,12 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.fetch_with_order_cost().all()
     menu = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant').select_related('product')
-    menu_items = {}
+    product_to_restaurants = {}
     for menu_item in menu:
-        menu_items.setdefault(menu_item.product.id, list()).append(menu_item.restaurant)
+        product_to_restaurants.setdefault(menu_item.product.id, list()).append(menu_item.restaurant)
 
     for order in orders:
-        order.order_restaurants = order.fetch_restaurants_distance(menu_items)
+        order.order_restaurants = order.fetch_restaurants_distance(product_to_restaurants)
 
     return render(
         request,

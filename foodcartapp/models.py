@@ -146,7 +146,8 @@ class Order(models.Model):
     ]
 
     status = models.CharField('статус', max_length=20, choices=order_choices, default='not_processed', db_index=True)
-    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='not_defined', db_index=True)
+    payment = models.CharField('Способ оплаты', max_length=20, choices=pay_choices, default='not_defined',
+                               db_index=True)
     firstname = models.CharField('Имя', max_length=50)
     lastname = models.CharField('Фамилия', max_length=50)
     address = models.CharField('Адрес', max_length=50)
@@ -173,9 +174,9 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.firstname} {self.lastname} {self.address}'
 
-    def fetch_restaurants_distance(self, menu_items):
+    def fetch_restaurants_distance(self, product_to_restaurants):
         order_items_id = self.order_items.values_list('product', flat=True)
-        order_items_restaurants = [menu_items[order_item_id] for order_item_id in order_items_id]
+        order_items_restaurants = [product_to_restaurants[order_item_id] for order_item_id in order_items_id]
         order_restaurants = set.intersection(
             *[set(order_item_restaurants) for order_item_restaurants in order_items_restaurants])
 
