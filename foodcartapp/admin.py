@@ -150,10 +150,9 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj):
         res = super(OrderAdmin, self).response_change(request, obj)
-        if "next" in request.GET:
-            redirect_url = request.GET['next']
-            if url_has_allowed_host_and_scheme(redirect_url, ALLOWED_HOSTS):
-                return redirect(redirect_url)
+        if "next" not in request.GET:
             return res
-        else:
-            return res
+        redirect_url = request.GET['next']
+        if url_has_allowed_host_and_scheme(redirect_url, ALLOWED_HOSTS):
+            return redirect(redirect_url)
+        return res
