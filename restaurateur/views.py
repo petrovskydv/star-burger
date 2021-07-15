@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django import forms
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
@@ -96,9 +98,9 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.fetch_with_order_cost().all()
     menu = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
-    product_to_restaurants = {}
+    product_to_restaurants = defaultdict(list)
     for menu_item in menu:
-        product_to_restaurants.setdefault(menu_item.product.id, list()).append(menu_item.restaurant)
+        product_to_restaurants[menu_item.product.id].append(menu_item.restaurant)
 
     for order in orders:
         order.order_restaurants = order.fetch_restaurants_distance(product_to_restaurants)
