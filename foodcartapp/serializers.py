@@ -16,7 +16,7 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, write_only=True)
+    products = OrderItemSerializer(many=True, write_only=True, allow_empty=False)
     phonenumber = PhoneNumberField(source='phone_number')
     id = IntegerField(read_only=True)
 
@@ -30,8 +30,3 @@ class OrderSerializer(ModelSerializer):
             'address',
             'products',
         )
-
-    def validate_products(self, value):
-        if not value:
-            raise ValidationError('Список продуктов пуст!')
-        return value
