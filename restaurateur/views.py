@@ -95,7 +95,7 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.fetch_with_order_cost().all()
-    menu = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant').select_related('product')
+    menu = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
     product_to_restaurants = {}
     for menu_item in menu:
         product_to_restaurants.setdefault(menu_item.product.id, list()).append(menu_item.restaurant)
