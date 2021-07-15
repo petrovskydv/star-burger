@@ -183,20 +183,14 @@ class Order(models.Model):
         order_coordinates = fetch_coordinates(self.address)
         order_restaurants_coordinates = []
         for order_restaurant in order_restaurants:
-            restaurant_distance = self.fetch_distance(order_coordinates, order_restaurant)
-            order_restaurants_coordinates.append([order_restaurant, round(restaurant_distance, 3)])
+            restaurant_coordinates = fetch_coordinates(order_restaurant.address)
+            if order_coordinates[0] and restaurant_coordinates[0]:
+                restaurant_distance = distance.distance(order_coordinates, restaurant_coordinates).km
+                order_restaurants_coordinates.append([order_restaurant, round(restaurant_distance, 3)])
 
+        if not order_restaurants_coordinates:
+            return [['Нет координат заказа', '']]
         return sorted(order_restaurants_coordinates, key=lambda restaurant: restaurant[1])
-
-    @staticmethod
-    def fetch_distance(order_coordinates, order_restaurant):
-        if not order_coordinates[0]:
-            return 0
-        restaurant_coordinates = fetch_coordinates(order_restaurant.address)
-        if not restaurant_coordinates[0]:
-            return 0
-        restaurant_distance = distance.distance(order_coordinates, restaurant_coordinates).km
-        return restaurant_distance
 
 
 class OrderItem(models.Model):

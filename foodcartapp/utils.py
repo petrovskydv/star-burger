@@ -19,7 +19,7 @@ def fetch_coordinates(place):
             response.raise_for_status()
             found_places = response.json()['response']['GeoObjectCollection']['featureMember']
             if not found_places:
-                return
+                return None, None
             most_relevant = found_places[0]
             location.longitude, location.latitude = most_relevant['GeoObject']['Point']['pos'].split(" ")
             location.save()
