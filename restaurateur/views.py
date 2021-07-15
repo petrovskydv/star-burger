@@ -103,7 +103,7 @@ def view_orders(request):
         product_to_restaurants[menu_item.product.id].append(menu_item.restaurant)
 
     for order in orders:
-        order.order_restaurants = order.fetch_restaurants_distance(product_to_restaurants)
+        order.order_restaurants_distance = order.fetch_restaurants_distance(product_to_restaurants)
 
     return render(
         request,
