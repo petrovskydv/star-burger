@@ -25,3 +25,17 @@ def fetch_coordinates(place):
             location.save()
 
     return location.longitude, location.latitude
+
+
+def find_coordinates(address, places):
+    for place in places:
+        if place['address'] == address:
+            return place['longitude'], place['latitude']
+    fetch_coordinates(address)
+
+
+def fetch_order_restaurants(order_items_id, product_to_restaurants):
+    order_items_restaurants = [product_to_restaurants[order_item_id] for order_item_id in order_items_id]
+    order_restaurants = set.intersection(
+        *[set(order_item_restaurants) for order_item_restaurants in order_items_restaurants])
+    return order_restaurants

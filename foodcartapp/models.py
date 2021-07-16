@@ -1,11 +1,11 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Sum, F, Prefetch
+from django.db.models import Sum, F
 from django.utils import timezone
 from geopy import distance
 from phonenumber_field.modelfields import PhoneNumberField
 
-from foodcartapp.utils import fetch_coordinates
+from foodcartapp.utils import find_coordinates
 
 
 class Restaurant(models.Model):
@@ -174,22 +174,21 @@ class Order(models.Model):
     def __str__(self):
         return f'{self.firstname} {self.lastname} {self.address}'
 
-    def fetch_restaurants_distance(self, product_to_restaurants):
-        order_items_id = self.order_items.values_list('product', flat=True)
-        order_items_restaurants = [product_to_restaurants[order_item_id] for order_item_id in order_items_id]
-        order_restaurants = set.intersection(
-            *[set(order_item_restaurants) for order_item_restaurants in order_items_restaurants])
+    def fetch_restaurants_distance(self, order_restaurants, places):
+        order_coordinates = find_coordinates(self.address, places)
+        if not order_coordinates[0]:
+            return [['Нет координат заказа', '']]
 
-        order_coordinates = fetch_coordinates(self.address)
         order_restaurants_coordinates = []
         for order_restaurant in order_restaurants:
-            restaurant_coordinates = fetch_coordinates(order_restaurant.address)
-            if order_coordinates[0] and restaurant_coordinates[0]:
-                restaurant_distance = distance.distance(order_coordinates, restaurant_coordinates).km
-                order_restaurants_coordinates.append([order_restaurant, round(restaurant_distance, 3)])
+            restaurant_coordinates = find_coordinates(order_restaurant.address, places)
+            if not restaurant_coordinates[0]:
+                continue
+            restaurant_distance = distance.distance(order_coordinates, restaurant_coordinates).km
+            order_restaurants_coordinates.append([order_restaurant, round(restaurant_distance, 3)])
 
         if not order_restaurants_coordinates:
-            return [['Нет координат заказа', '']]
+            return [['Нет удалось определить расстояние', '']]
         return sorted(order_restaurants_coordinates, key=lambda restaurant: restaurant[1])
 
 

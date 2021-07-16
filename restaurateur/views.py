@@ -9,6 +9,8 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.utils import fetch_order_restaurants
+from location.models import Place
 
 
 class Login(forms.Form):
@@ -96,14 +98,18 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.fetch_with_order_cost().all()
+    orders = Order.objects.fetch_with_order_cost().prefetch_related('order_items', 'order_items__product').all()
     menu = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
     product_to_restaurants = defaultdict(list)
     for menu_item in menu:
         product_to_restaurants[menu_item.product.id].append(menu_item.restaurant)
 
+    places = Place.objects.values('address', 'latitude', 'longitude')
+
     for order in orders:
-        order.order_restaurants_distance = order.fetch_restaurants_distance(product_to_restaurants)
+        order_items_id = [order_item.product.id for order_item in order.order_items.all()]
+        order_restaurants = fetch_order_restaurants(order_items_id, product_to_restaurants)
+        order.order_restaurants_distance = order.fetch_restaurants_distance(order_restaurants, places)
 
     return render(
         request,
