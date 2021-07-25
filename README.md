@@ -148,6 +148,7 @@ parcel build bundles-src/index.js -d bundles --public-url="./"
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_GEOCODER_TOKEN` — секретный ключ сервиса Яндекс-геокодер. Он отвечает за получение координат доставки.
 Tокен яндекс-геокодер нужно получить в [кабинете разработчика](https://developer.tech.yandex.ru/).
+- `ROLLBAR_TOKEN` — секретный ключ сервиса Rollbar. Он отвечает за логирование ошибок на сайте.
 
 ## Цели проекта
 
