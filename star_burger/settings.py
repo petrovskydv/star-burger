@@ -90,6 +90,7 @@ DB_NAME = env('DB_NAME', 'db')
 DB_USER = env('DB_USER', 'user')
 DB_PASSWORD = env('DB_PASSWORD', 'password')
 
+# FIXME адрес базы
 DATABASES = {
     'default': dj_database_url.config(
         default=f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_URL}:{DB_PORT}/{DB_NAME}'
