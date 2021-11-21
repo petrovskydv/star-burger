@@ -84,17 +84,11 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DB_URL = env('DB_URL', '127.0.0.1')
-DB_PORT = env('DB_PORT', '5432')
-DB_NAME = env('DB_NAME', 'db')
-DB_USER = env('DB_USER', 'user')
-DB_PASSWORD = env('DB_PASSWORD', 'password')
+DATABASE_URL = env('DATABASE_URL', 'sqlite:///db1.sqlite3')
 
 # FIXME адрес базы
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'postgres://{DB_USER}:{DB_PASSWORD}@{DB_URL}:{DB_PORT}/{DB_NAME}'
-    )
+    'default': dj_database_url.parse(DATABASE_URL),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
