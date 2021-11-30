@@ -150,11 +150,8 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `YANDEX_GEOCODER_TOKEN` — секретный ключ сервиса Яндекс-геокодер. Он отвечает за получение координат доставки.
 Tокен яндекс-геокодер нужно получить в [кабинете разработчика](https://developer.tech.yandex.ru/).
 - `ROLLBAR_TOKEN` — секретный ключ сервиса Rollbar. Он отвечает за логирование ошибок на сайте.
-- `DB_URL` — адрес базы данных Postgres.
-- `DB_PORT` — порт базы данных Postgres.
-- `DB_NAME` — имя базы данных Postgres.
-- `DB_USER` — имя пользователя Postgres.
-- `DB_PASSWORD` — пароль пользователя Postgres.
+- `ROLLBAR_ENV` — название окружения или инсталляции сайта.
+- `DATABASE_URL` — путь и параметры подключения к базе данных.
 
 ## Установка Postgres
 
