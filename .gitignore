@@ -143,3 +143,5 @@ cython_debug/
 .idea/
 
 .parcel-cache/
+package-lock.json
+staticfiles/
